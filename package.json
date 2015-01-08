@@ -1,0 +1,26 @@
+{
+  "name": "regex-combiner",
+  "version": "1.0.0",
+  "description": "Combine multiple regexes into one",
+  "main": "regex-combiner.js",
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spadgos/regex-combiner"
+  },
+  "keywords": [
+    "regex"
+  ],
+  "author": "Nick Fisher",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/spadgos/regex-combiner/issues"
+  },
+  "homepage": "https://github.com/spadgos/regex-combiner",
+  "devDependencies": {
+    "expect.js": "0.3.1",
+    "mocha": "2.1.0"
+  }
+}
