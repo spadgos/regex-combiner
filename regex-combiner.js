@@ -1,4 +1,10 @@
-var ender = '***';
+var ender = '***',
+    groupers = {
+      '{': '}',
+      '[': ']',
+      '(': ')'
+    },
+    modifiers = '*?+';
 
 module.exports = combineRegexes;
 
@@ -16,26 +22,29 @@ function reToString(regex) {
 }
 
 function tokenize(str) {
-  var i, l, char, out = [], currToken = '',
-      openers = '([{', closers = ')]}', closer, openerIndex,
-      modifiers = '*?+';
+  var i, l, char, out = [], currToken = '', closer;
+
   for (i = 0, l = str.length; i < l; ++i) {
     char = str.charAt(i);
+
     if (char === '\\') {
       currToken += char + str.charAt(++i);
-    } else if (!closer && (openerIndex = openers.indexOf(char)) > -1) {
+    } else if (!closer && (closer = groupers[char])) {
       currToken = char;
-      closer = closers.charAt(openerIndex);
     } else if (char === closer) {
       currToken += char;
       closer = null;
-      if (char === '}') {
+      if (char === '}') { // this group is a modifier
         out[out.length - 1] += currToken;
         currToken = '';
         continue;
       }
     } else if (modifiers.indexOf(char) > -1) {
-      out[out.length - 1] += char;
+      if (closer) {
+        currToken += char;
+      } else {
+        out[out.length - 1] += char;
+      }
       continue;
     } else {
       currToken += char;
