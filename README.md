@@ -23,7 +23,8 @@ combined.test('baddd'); // true
 ### Caveats
 
 - No flags! Combining case-sensitive and case-insensitive regexes is ... difficult, so all flags are **ignored**.
-- The output regex is pretty much only going to be useful for `.test()`. Trying to get something meaningful from the
+- No back-references in the input regexes. Things like `/(['"])foo\1/` are just not going to work.
+- The resulting regex is pretty much only going to be useful for `.test()`. Trying to get something meaningful from the
   groups is not going to be fun.
 
 ### Licence

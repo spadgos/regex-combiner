@@ -91,7 +91,7 @@ function trieToRegexStr(trie) {
   if (keys.length === 0) {
     return '';
   }
-  return '(' + keys.map(function (key) {
+  return '(?:' + keys.map(function (key) {
     return key.replace(ender, '') + trieToRegexStr(trie[key]);
   }).join('|') + ')';
 }

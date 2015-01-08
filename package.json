@@ -1,6 +1,6 @@
 {
   "name": "regex-combiner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Combine multiple regexes into one",
   "main": "regex-combiner.js",
   "scripts": {
