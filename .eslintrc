@@ -1,0 +1,16 @@
+// Values for each rule are 0, 1, or 2. 0 = No warning. 1 = Warning. 2 = Error.
+//
+// See http://eslint.org/docs/rules/ for explanation of the rules.
+// See https://github.com/eslint/eslint/blob/master/conf/eslint.json for list of the default values.
+{
+  "rules": {
+    "no-mixed-requires": [0, false],
+    "no-multi-spaces": 0,
+    "no-use-before-define": 0,
+    "quotes": [2, "single", "avoid-escape"],
+    "strict": 0
+  },
+  "env": {
+    "node": true
+  }
+}
