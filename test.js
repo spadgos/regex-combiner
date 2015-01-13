@@ -6,7 +6,7 @@ describe('Regex Combiner', function () {
   var combination = regexCombiner([
     /plain text/,
     /^with* modifiers?/,
-    /cha[ra][ra]cter classes/,
+    /cha[ra][ra]cter sets/,
     /^with (groups)/,
     /^with (groups|more groups)/,
     /^with (mod+ifiers\s*|in groups{2,3}\s*)+/,
@@ -31,7 +31,7 @@ describe('Regex Combiner', function () {
       [
         'plain text',
         'withhh modifier',
-        'character classes',
+        'character sets',
         'with groups',
         'with more groups',
         'with modddifiers in groupss modifiers in groupsss',
@@ -44,7 +44,7 @@ describe('Regex Combiner', function () {
         'escaped ] chars',
         'escaped ]]] chars'
       ].forEach(function (testStr) {
-        expect(combination.test(testStr)).to.be(true);
+        expect(testStr).to.match(combination);
       });
     });
 
@@ -57,7 +57,7 @@ describe('Regex Combiner', function () {
         'char counttttts',
         'escaped ]] chars'
       ].forEach(function (testStr) {
-        expect(combination.test(testStr)).to.be(false);
+        expect(testStr).not.to.match(combination);
       });
     });
 
@@ -75,7 +75,7 @@ describe('Regex Combiner', function () {
         /a{,5}/,
         /a{3,}/
       ]);
-      expect(combined.test('aaa')).to.be(true);
+      expect('aaa').to.match(combined);
     });
 
     it('works with strings too', function () {
@@ -105,30 +105,68 @@ describe('Regex Combiner', function () {
       expect(combined.test('bat')).to.be(false);
     });
 
-    it('creates character classes correctly', function () {
+    it('creates character sets correctly', function () {
       var combined = regexCombiner([
         /aa/,
         /a-/,
-        /ac/
+        /ac/,
+        /a\^/
       ]);
-      expect(combined.test('aa')).to.be(true);
-      expect(combined.test('ac')).to.be(true);
-      expect(combined.test('a-')).to.be(true);
-      expect(combined.test('ab')).to.be(false);
+      expect('aa').to.match(combined);
+      expect('ac').to.match(combined);
+      expect('a-').to.match(combined);
+      expect('a^').to.match(combined);
+      expect('ab').not.to.match(combined);
     });
 
-    it('combines character classes correctly', function () {
+    it('combines character sets correctly', function () {
       var combined = regexCombiner([
         /a[a-c]/,
         /a[-_]/,
         /a[efghi]/
       ]);
-      expect(combined.test('aa')).to.be(true);
-      expect(combined.test('ac')).to.be(true);
-      expect(combined.test('a-')).to.be(true);
-      expect(combined.test('a_')).to.be(true);
-      expect(combined.test('af')).to.be(true);
-      expect(combined.test('ad')).to.be(false);
+      expect('aa').to.match(combined);
+      expect('ac').to.match(combined);
+      expect('a-').to.match(combined);
+      expect('a_').to.match(combined);
+      expect('af').to.match(combined);
+      expect('ad').not.to.match(combined);
+    });
+
+    it('handles unicode character sets', function () {
+      var combined = regexCombiner([
+        /a[\u0050-\u0060]/,
+        /a[\u0070-\u0080]/
+      ]);
+      expect('a\u0050').to.match(combined);
+      expect('a\u0060').to.match(combined);
+      expect('a\u0070').to.match(combined);
+      expect('a\u0080').to.match(combined);
+      expect('a\u0065').not.to.match(combined);
+    });
+
+    it('combines negated character sets correctly', function () {
+      var combined = regexCombiner([
+        /a[^b]/,
+        /a[^d]/
+      ]);
+      expect('a').not.to.match(combined);
+      expect('ab').to.match(combined);
+      expect('ac').to.match(combined);
+      expect('ad').to.match(combined);
+    });
+
+    it('handles a mix of negated character sets', function () {
+      var combined = regexCombiner([
+        /a[^-b-d]/,
+        /a[de]/
+      ]);
+      expect('a').not.to.match(combined);
+      expect('ab').not.to.match(combined);
+      expect('ac').not.to.match(combined);
+      expect('ad').to.match(combined);
+      expect('ae').to.match(combined);
+      expect('a-').not.to.match(combined);
     });
   });
 
