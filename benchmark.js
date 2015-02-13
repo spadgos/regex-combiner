@@ -1,3 +1,4 @@
+/* eslint new-cap: 0 */
 var Benchmark = require('benchmark'),
     regexCombiner = require('./regex-combiner'),
     manyRegexes,
@@ -108,7 +109,7 @@ function individualTest(arr, phrase) {
         return;
       }
     }
-  }
+  };
 }
 
 function toBoundedRegex(str) {
