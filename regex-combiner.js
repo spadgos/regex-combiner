@@ -10,29 +10,22 @@ var combineRegexes = require('./lib/combine-regexes');
  * @return {Object}
  */
 module.exports = function (arr) {
-  var regexes      = arr.map(toRegex),
-      combined     = combineRegexes(regexes),
-      indexOfBound = indexOf.bind(null, combined, regexes);
-  return {
-    /**
-     * Test a string to see if any of the source regexes match the given string.
-     * @param  {String}
-     * @return {Boolean}
-     */
-    test: combined.test.bind(combined),
+  var regexes  = arr.map(toRegex),
+      combined = combineRegexes(regexes);
 
-    /**
-     * Get the index of the first source regex which matched.
-     * @param  {String}
-     * @return {Number} The index, or -1 if none found.
-     */
-    indexOf: indexOfBound,
-
-    exec: function (str) {
-      var index = indexOfBound(str);
-      return index > -1 ? regexes[index].exec(str) : null;
-    }
+  /**
+   * Get the index of the first source regex which matched.
+   * @param  {String}
+   * @return {Number} The index, or -1 if none found.
+   */
+  combined.indexOf = function (str) {
+    return indexOf(combined, regexes, str);
   };
+  combined.exec = function (str) {
+    var index = indexOf(combined, regexes, str);
+    return index > -1 ? regexes[index].exec(str) : null;
+  };
+  return combined;
 };
 
 function indexOf(combined, regexes, str) {
