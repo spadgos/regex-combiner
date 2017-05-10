@@ -1,10 +1,9 @@
 /* eslint new-cap: 0 */
 var Benchmark = require('benchmark'),
     regexCombiner = require('./regex-combiner'),
-    manyRegexes,
-    fewRegexes;
+    allStrings;
 
-manyRegexes = [
+allStrings = [
   // 1000 most common words in English. This should be a relatively normal use case: check if a password is one of the
   // most common words and reject it. List from http://www.bckelk.ukfsn.org/words/uk1000n.html
   'the and to of a I in was he that it his her you as had with for she not at but be my on have him is said me which',
@@ -64,29 +63,60 @@ manyRegexes = [
   'share pair to-morrow aware colour writing whenever quietly fool forced touched smiling taste dog spent steps worst',
   'legs watched ay thee eight worthy wrote manners proceeded frightened somewhat born greatest charge degree shame',
   'places ma\'am couldn\'t tongue according box wine filled servants calling fallen supper'
-].join(' ').split(' ').map(toBoundedRegex);
+].join(' ').split(' ');
 
-// ...a smaller selection. 1st, 250th, 500th, 750th, 1000th
-fewRegexes = 'the half tears trees supper'.split(' ').map(toBoundedRegex);
+var tests = [80, 40, 20, 10, 5].reduce(function (memo, sampleSize) {
+  memo['Set size = ' + sampleSize] = sample(allStrings, sampleSize);
+  return memo;
+}, {'Set size = 1000': allStrings });
 
-// add tests
-Benchmark.forOwn({
-  'Many regexes': manyRegexes,
-  'Few regexes': fewRegexes
-}, function (individual, name) {
-  console.log('\n' + name + '\n====================');
+Benchmark.forOwn(tests, function (strings, name) {
+  var individual = strings.map(toBoundedRegex);
   var combined = regexCombiner(individual);
-  Benchmark.Suite(name)
-    .add('combined regex with a match at the start',      combinedTest(combined, 'the'))       // best case match
-    .add('combined regex with a match at the middle',     combinedTest(combined, 'tears'))     // average case match
-    .add('combined regex with a match at the end',        combinedTest(combined, 'supper'))    // worst case match
-    .add('combined regex with a complete miss',           combinedTest(combined, '!@#'))       // best case miss
-    .add('combined regex with a near miss',               combinedTest(combined, 'supper!@#')) // worst case miss
-    .add('individual regexes with a match at the start',  individualTest(individual, 'the'))
-    .add('individual regexes with a match at the middle', individualTest(individual, 'tears'))
-    .add('individual regexes with a match at the end',    individualTest(individual, 'supper'))
-    .add('individual regexes with a complete miss',       individualTest(individual, '!@#'))
-    .add('individual regexes with a near miss',           individualTest(individual, 'supper!@#'))
+  var bestCase = strings[0];
+  var worstCase = strings[strings.length - 1];
+  var avgCase = strings[Math.floor(strings.length / 2)];
+  var worstMiss = worstCase + '!@#';
+  var bestMiss = '!@#';
+
+  runBenchmark(Benchmark.Suite(name)
+    .add('combined regex with a match at the start',      combinedTest(combined, bestCase))  // best case match
+    .add('combined regex with a match at the middle',     combinedTest(combined, avgCase))   // average case match
+    .add('combined regex with a match at the end',        combinedTest(combined, worstCase)) // worst case match
+    .add('combined regex with a complete miss',           combinedTest(combined, bestMiss))  // best case miss
+    .add('combined regex with a near miss',               combinedTest(combined, worstMiss)) // worst case miss
+    .add('individual regexes with a match at the start',  individualTest(individual, bestCase))
+    .add('individual regexes with a match at the middle', individualTest(individual, avgCase))
+    .add('individual regexes with a match at the end',    individualTest(individual, worstCase))
+    .add('individual regexes with a complete miss',       individualTest(individual, bestMiss))
+    .add('individual regexes with a near miss',           individualTest(individual, worstMiss))
+    .add('indexOf with a match at the start',             indexOfTest(strings, bestCase))
+    .add('indexOf with a match at the middle',            indexOfTest(strings, avgCase))
+    .add('indexOf with a match at the end',               indexOfTest(strings, worstCase))
+    .add('indexOf with a complete miss',                  indexOfTest(strings, bestMiss))
+    .add('indexOf with a near miss',                      indexOfTest(strings, worstMiss))
+  );
+
+  // 1/3 chance to test against a word which isn't in the list
+  var stringsWithGibberish = strings.concat(makeArray(Math.floor(strings.length * 0.5), gibberish));
+  runBenchmark(Benchmark.Suite(name + ' (averaged case)')
+    .add('combined regex', combinedTestAvg(combined, stringsWithGibberish))
+    .add('individual regexes', individualTestAvg(individual, stringsWithGibberish))
+    .add('indexOf', indexOfTestAvg(strings, stringsWithGibberish))
+  );
+});
+
+runBenchmark(Object.keys(tests).reduce(function (suite, name) {
+  var strings = tests[name];
+  var individual = strings.map(toBoundedRegex);
+  return suite.add('Size = ' + strings.length, function () {
+    regexCombiner(individual);
+  });
+}, Benchmark.Suite('Generating combined regex')));
+
+function runBenchmark(suite) {
+  console.log('\n## ' + suite.name + '\n');
+  suite
     .on('cycle', function(event) {
       console.log(String(event.target));
     })
@@ -94,11 +124,17 @@ Benchmark.forOwn({
       console.log('Fastest is ' + this.filter('fastest').pluck('name').join(', '));
     })
     .run({ 'async': false });
-});
+}
 
 function combinedTest(combinedRegex, phrase) {
   return function () {
     combinedRegex.test(phrase);
+  };
+}
+
+function combinedTestAvg(combinedRegex, phrases) {
+  return function () {
+    combinedRegex.test(sample(phrases));
   };
 }
 
@@ -111,7 +147,56 @@ function individualTest(arr, phrase) {
     }
   };
 }
+function individualTestAvg(arr, phrases) {
+  return function () {
+    var phrase = sample(phrases);
+    for (var i = 0, l = arr.length; i < l; ++i) {
+      if (arr[i].test(phrase)) {
+        return;
+      }
+    }
+  }
+}
+
+function indexOfTest(words, phrase) {
+  return function () {
+    return words.indexOf(phrase) > -1;
+  };
+}
+
+function indexOfTestAvg(words, phrases) {
+  return function () {
+    var phrase = sample(phrases);
+    return words.indexOf(phrase) > -1;
+  };
+}
 
 function toBoundedRegex(str) {
   return RegExp('^' + str + '$');
+}
+
+function sample(arr, n) {
+  if (n && n > 1) {
+    return makeArray(n, sample.bind(null, arr));
+  }
+  return arr[rnd(0, arr.length)];
+}
+
+function gibberish() {
+  return String.fromCharCode.apply(String, makeArray(rnd(2, 8), function () {
+    return rnd(97, 123); // a-z
+  }));
+}
+
+function makeArray(size, fn) {
+  var out = [];
+  for (var i = 0; i < size; ++i) {
+    out[i] = fn();
+  }
+  return out;
+}
+
+// something in the range [low...high-1]
+function rnd(low, high) {
+  return Math.floor(Math.random() * (high - low)) + low;
 }
