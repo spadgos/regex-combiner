@@ -6,10 +6,10 @@ var Benchmark = require('benchmark'),
 allStrings = [
   // 1000 most common words in English. This should be a relatively normal use case: check if a password is one of the
   // most common words and reject it. List from http://www.bckelk.ukfsn.org/words/uk1000n.html
-  'the and to of a I in was he that it his her you as had with for she not at but be my on have him is said me which',
-  'by so this all from they no were if would or when what there been one could very an who them Mr we now more out do',
+  'the and to of a i in was he that it his her you as had with for she not at but be my on have him is said me which',
+  'by so this all from they no were if would or when what there been one could very an who them mr we now more out do',
   'are up their your will little than then some into any well much about time know should man did like upon such',
-  'never only good how before other see must am own come down say after think made might being Mrs again great two',
+  'never only good how before other see must am own come down say after think made might being mrs again great two',
   'can go over too here came old thought himself where our may first way has though without went us away day make',
   'these young nothing long shall sir back don\'t house ever yet take every hand most last eyes its miss having off',
   'looked even while dear look many life still mind quite another those just head tell better always saw seemed put',
@@ -21,22 +21,22 @@ allStrings = [
   'whole together manner new believe course least years answered among stood sat speak leave work keep taken end less',
   'present family often wife whether master coming mean returned evening light money cannot whose boy days near',
   'matter suppose gentleman used says really rest business full help child sort passed lay small behind girl feel',
-  'fire care alone open person call given I\'ll sometimes making short else large within chapter true country times',
+  'fire care alone open person call given i\'ll sometimes making short else large within chapter true country times',
   'ask answer air kept hour letter happy reason pretty husband certain others ought does known it\'s bed table',
   'that\'s ready read already pleasure either means spoke taking friends talk hard walked turn strong thus yourself',
   'high along above feeling glad children doubt nature themselves black hardly town sense saying deal account use',
   'white bad everything can\'t neither wanted mine close return dark fell subject bear appeared fear state thinking',
   'also point therefore fine case doing held certainly walk lost question company continued fellow truth water',
-  'possible hold afraid bring honour low ground added five remember except power seeing dead I\'m usual able second',
+  'possible hold afraid bring honour low ground added five remember except power seeing dead i\'m usual able second',
   'arms late opinion window brother live four none death arm road hair sister entered sent married longer immediately',
   'god women hours ten understand son horse wonder cold beyond please fair became sight met afterwards eye year show',
-  'general itself silence lord wrong turning daughter stay forward O interest thoughts followed won\'t different',
+  'general itself silence lord wrong turning daughter stay forward o interest thoughts followed won\'t different',
   'opened several idea received change laid strange nobody fact during feet tears run purpose character body ran past',
   'order need pleased trouble whatever dinner happened sitting getting there\'s besides soul ill early rose aunt',
   'hundred minutes across carried sit observed suddenly creature conversation worse six quiet chair doctor tone',
   'standing living sorry stand meet instead wished ah lived try red smile sound expected silent common meant tried',
   'until mouth distance occasion cut marry likely length story visit deep seems street remained become led speaking',
-  'natural giving further struck week loved drew seem church knows object ladies marriage book appearance pay I\'ve',
+  'natural giving further struck week loved drew seem church knows object ladies marriage book appearance pay i\'ve',
   'obliged particular pass thank form knowing lips knowledge former blood sake fortune necessary presence feelings',
   'corner beautiful talking spirit ago foot circumstances wind presently comes attention wait play easy real clear',
   'worth cause send spirits chance didn\'t view pleasant party beginning horses stopped notice duty he\'s age figure',
@@ -121,7 +121,7 @@ function runBenchmark(suite) {
       console.log(String(event.target));
     })
     .on('complete', function() {
-      console.log('Fastest is ' + this.filter('fastest').pluck('name').join(', '));
+      console.log('Fastest is ' + this.filter('fastest').map('name').join(', '));
     })
     .run({ 'async': false });
 }

@@ -63,7 +63,7 @@ function setDeep(str) {
       memo[char] = {};
     }
     if (ind === arr.length - 1) {
-      memo[char][ender] = {};
+      memo[char][ender] = true;
     }
     return memo[char];
   }, this);
@@ -92,6 +92,10 @@ function trieToRegexStr(trie) {
     return '';
   }
   return '(?:' + keys.map(function (key) {
-    return key.replace(ender, '') + trieToRegexStr(trie[key]);
+    if (key.substr(-3) === ender) {
+      return key.substr(0, key.length - 3);
+    } else {
+      return key + trieToRegexStr(trie[key]);
+    }
   }).join('|') + ')';
 }

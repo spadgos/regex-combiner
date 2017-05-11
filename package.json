@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/spadgos/regex-combiner",
   "devDependencies": {
-    "benchmark": "1.0.0",
+    "benchmark": "2.1.4",
     "expect.js": "0.3.1",
     "mocha": "2.1.0"
   }
